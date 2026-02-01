@@ -1,76 +1,97 @@
-# beautifi ✨
+# beautifi v0.1.0
 
-Batch logo and asset generation CLI for developers who want their repos to look as good as their code.
+Batch logo generation CLI using Google's Imagen 3 API.
 
-## Why
-
-Professional-looking repos signal quality. Good logos, badges, and visual polish make a difference. But creating them manually is tedious. Beautifi automates the creative exploration phase — generate dozens of variants, pick the best, move on.
-
-## Install
+## Installation
 
 ```bash
-go install github.com/rickhallett/beautifi@latest
-```
-
-Requires: `GEMINI_API_KEY` in environment.
-
-## Usage
-
-```bash
-# Generate logos for a project
-beautifi generate bosun --variants 3
-
-# Batch generate for multiple projects
-beautifi batch projects.yaml
-
-# Preview generated images
-beautifi preview ~/output/bosun/
-
-# Apply logo to README
-beautifi readme bosun --logo best
-```
-
-## How It Works
-
-1. **Define themes** — What visual concepts fit your project?
-2. **Define styles** — Flat, gradient, line-art, mascot, abstract?
-3. **Generate variants** — N images per prompt, M prompts per project
-4. **Review** — HTML gallery for quick selection
-5. **Apply** — Insert into professional README template
-
-## Example
-
-```yaml
-# ~/.config/beautifi/projects/polecat.yaml
-project: polecat
-tagline: "Sandboxed Claude CLI runner"
-themes:
-  - mustelid (ferret, polecat, weasel)
-  - burrow (underground, contained)
-  - sandbox (playful, safe)
-styles:
-  - flat-minimal
-  - mascot
-  - abstract-geo
-```
-
-```bash
-beautifi generate polecat --variants 3
-# → 3 themes × 3 styles × 3 variants = 27 images
-# → ~/output/polecat/
+cd ~/code/beautifi
+go build -o beautifi .
+# Optional: symlink to PATH
+ln -sf $(pwd)/beautifi ~/.local/bin/beautifi
 ```
 
 ## Configuration
 
+Create project configs in `~/.config/beautifi/projects/`:
+
 ```yaml
-# ~/.config/beautifi/config.yaml
-backend: gemini
-output_dir: ~/output/beautifi
-defaults:
-  variants_per_prompt: 3
-  parallel: 4
+# ~/.config/beautifi/projects/myproject.yaml
+project: myproject
+tagline: "Your awesome tool"
+
+themes:
+  - nature
+  - tech
+  - abstract
+
+styles:
+  - flat-minimal
+  - gradient-glass
+  - neon-glow
+  - geometric
+
+# Optional
+aspect_ratio: "1:1"
+base_prompt: "Custom prompt override"
 ```
 
-## License
+### Available Styles
 
-MIT
+| Style | Description |
+|-------|-------------|
+| `flat-minimal` | Clean flat design, no shadows |
+| `gradient-glass` | Modern glassmorphism |
+| `neon-glow` | Cyberpunk neon aesthetic |
+| `hand-drawn` | Sketchy organic style |
+| `3d-render` | Realistic 3D depth |
+| `retro-pixel` | 8-bit pixel art |
+| `watercolor` | Soft paint texture |
+| `geometric` | Bold abstract shapes |
+
+## Usage
+
+```bash
+# Preview prompts without API calls
+beautifi preview bosun
+beautifi preview bosun --format markdown
+
+# Dry run - see what would be generated
+beautifi generate bosun --dry-run --verbose
+
+# Generate with variants
+beautifi generate bosun --variants 3
+
+# Filter styles
+beautifi generate bosun --styles flat-minimal,neon-glow
+
+# Batch multiple projects
+beautifi batch bosun wasp clint
+beautifi batch  # processes all projects in config dir
+```
+
+## Output
+
+Images saved to `~/output/beautifi/<project>/`:
+```
+bosun/
+├── nautical-flat-minimal-1.png
+├── nautical-flat-minimal-1.json  (metadata)
+├── nautical-gradient-glass-1.png
+├── ...
+```
+
+## Environment
+
+```bash
+export GEMINI_API_KEY="your-api-key"
+```
+
+## API Integration
+
+Uses Google's Imagen 3 endpoint:
+```
+POST https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict
+```
+
+If you don't have Imagen API access yet, use `--dry-run` or `--prompts-only` to generate the prompts for use with other tools.
